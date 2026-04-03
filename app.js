@@ -215,7 +215,6 @@ function renderDashboard() {
             <th><button data-sort="causeNumber">Cause Number</button></th>
             <th><button data-sort="eventDate">Event Date</button></th>
             <th><button data-sort="event">Event</button></th>
-            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -226,7 +225,6 @@ function renderDashboard() {
               <td>${r.case.causeNumber}</td>
               <td>${formatDate(r.event.eventAt)}</td>
               <td><span class="event-chip" style="background:${EVENT_COLORS[r.event.eventType] || "#eee"}">${formatEventType(r.event.eventType)}</span></td>
-              <td class="row-actions"><button data-delete-case="${r.case.id}">Delete</button></td>
             </tr>
           `).join("")}
         </tbody>
@@ -272,21 +270,6 @@ function renderDashboard() {
     };
   });
 
-  const seen = new Set();
-  document.querySelectorAll("[data-delete-case]").forEach((btn) => {
-    const id = btn.getAttribute("data-delete-case");
-    if (seen.has(id)) {
-      btn.remove();
-      return;
-    }
-    seen.add(id);
-    btn.onclick = () => {
-      ui.state.data.cases = ui.state.data.cases.filter((c) => c.id !== id);
-      ui.state.data.events = ui.state.data.events.filter((ev) => ev.caseId !== id);
-      ui.state.data.notes = ui.state.data.notes.filter((n) => n.caseId !== id);
-      saveAndRender();
-    };
-  });
 }
 
 function renderCasePage() {
