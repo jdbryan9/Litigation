@@ -315,7 +315,7 @@ function renderCasePage() {
         <label>Case Name <input id="caseName" value="${caseItem.caseName}" /></label>
         <label>Cause Number <input id="causeNumber" value="${caseItem.causeNumber}" /></label>
       </div>
-      <div class="controls"><button id="saveCase">Save Case</button></div>
+      <div class="controls"><button id="saveCasePage">Save</button></div>
 
       <div class="section">
         <h2>Events</h2>
@@ -332,7 +332,7 @@ function renderCasePage() {
                 <td>
                   <input data-event-at="${e.id}" type="datetime-local" value="${e.eventAt ? toDatetimeLocal(e.eventAt) : ""}" ${isUndatedType(e.eventType) ? "disabled" : ""}/>
                 </td>
-                <td class="row-actions"><button data-save-event="${e.id}">Save</button><button data-del-event="${e.id}">Delete</button></td>
+                <td class="row-actions"><button data-del-event="${e.id}">Delete</button></td>
               </tr>
             `).join("")}
           </tbody>
@@ -357,10 +357,21 @@ function renderCasePage() {
 
   document.getElementById("backBtn").onclick = () => { ui.state.routeCaseId = null; render(); };
   document.getElementById("themeBtn").onclick = () => { setTheme(ui.state.theme === "light" ? "dark" : "light"); render(); };
-  document.getElementById("saveCase").onclick = () => {
+  document.getElementById("saveCasePage").onclick = () => {
     caseItem.leadAttorneyId = document.getElementById("caseAttorney").value;
     caseItem.caseName = document.getElementById("caseName").value.trim() || caseItem.caseName;
     caseItem.causeNumber = document.getElementById("causeNumber").value.trim() || caseItem.causeNumber;
+
+    document.querySelectorAll("[data-event-type]").forEach((input) => {
+      const id = input.getAttribute("data-event-type");
+      const evt = ui.state.data.events.find((e) => e.id === id);
+      const dateInput = document.querySelector(`[data-event-at='${id}']`);
+      evt.eventType = input.value;
+      evt.eventAt = isUndatedType(input.value) || !dateInput.value
+        ? null
+        : new Date(dateInput.value).toISOString();
+    });
+
     saveAndRender();
   };
 
@@ -368,18 +379,6 @@ function renderCasePage() {
     ui.state.data.events.push({ id: crypto.randomUUID(), caseId: caseItem.id, eventType: "HEARING", eventAt: new Date().toISOString() });
     saveAndRender();
   };
-
-  document.querySelectorAll("[data-save-event]").forEach((btn) => {
-    btn.onclick = () => {
-      const id = btn.getAttribute("data-save-event");
-      const evt = ui.state.data.events.find((e) => e.id === id);
-      const eventType = document.querySelector(`[data-event-type='${id}']`).value;
-      const dateValue = document.querySelector(`[data-event-at='${id}']`).value;
-      evt.eventType = eventType;
-      evt.eventAt = isUndatedType(eventType) ? null : new Date(dateValue).toISOString();
-      saveAndRender();
-    };
-  });
 
   document.querySelectorAll("[data-event-type]").forEach((el) => {
     el.onchange = () => {
