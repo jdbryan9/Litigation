@@ -335,6 +335,9 @@ function renderCasePage() {
           </div>
         `).join("")}
       </div>
+      <div class="case-footer-actions">
+        <button id="deleteCaseBtn" class="danger-btn">Delete Case</button>
+      </div>
     </section>
   `;
 
@@ -404,6 +407,14 @@ function renderCasePage() {
       saveAndRender();
     };
   });
+
+  document.getElementById("deleteCaseBtn").onclick = () => {
+    ui.state.data.cases = ui.state.data.cases.filter((c) => c.id !== caseItem.id);
+    ui.state.data.events = ui.state.data.events.filter((e) => e.caseId !== caseItem.id);
+    ui.state.data.notes = ui.state.data.notes.filter((n) => n.caseId !== caseItem.id);
+    ui.state.routeCaseId = null;
+    saveAndRender();
+  };
 }
 
 function isUndatedType(type) {
