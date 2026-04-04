@@ -126,6 +126,20 @@ textarea { min-height: 90px; }
 .row-actions { display: flex; gap: 0.45rem; }
 .small { font-size: 0.8rem; color: var(--text-secondary); }
 .hidden { display: none; }
+.case-footer-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+}
+
+.danger-btn {
+  border-color: #dc2626;
+  color: #dc2626;
+}
+
+.danger-btn:hover {
+  background: rgba(220, 38, 38, 0.1);
+}
 
 @media (max-width: 760px) {
   .table th:nth-child(3), .table td:nth-child(3) { display: none; }
