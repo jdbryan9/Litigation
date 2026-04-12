@@ -42,8 +42,8 @@ const defaultSeed = () => {
   return {
     users: DEFAULT_USERS,
     cases: [
-      { id: caseA, caseName: "Anderson v. Northwind", causeNumber: "24-2-10001-1", leadAttorneyId: abby.id },
-      { id: caseB, caseName: "Baker v. Contoso", causeNumber: "24-2-10002-8", leadAttorneyId: amy.id },
+      { id: caseA, caseName: "Anderson v. Northwind", causeNumber: "24-2-10001-1", leadAttorneyId: abby.id, linkUrl: "" },
+      { id: caseB, caseName: "Baker v. Contoso", causeNumber: "24-2-10002-8", leadAttorneyId: amy.id, linkUrl: "" },
     ],
     events: [
       { id: crypto.randomUUID(), caseId: caseA, eventType: "DISCOVERY_DUE", eventAt: new Date(Date.now() + 86400000 * 20).toISOString() },
@@ -236,7 +236,7 @@ function renderDashboard() {
   document.getElementById("scopeMine").onclick = () => { ui.state.scope = "mine"; render(); };
   document.getElementById("addCase").onclick = () => {
     const userId = ui.state.data.users[0]?.id;
-    const c = { id: crypto.randomUUID(), caseName: "New Case", causeNumber: `CN-${Date.now()}`, leadAttorneyId: userId };
+    const c = { id: crypto.randomUUID(), caseName: "New Case", causeNumber: `CN-${Date.now()}`, leadAttorneyId: userId, linkUrl: "" };
     ui.state.data.cases.push(c);
     saveAndRender();
   };
@@ -298,6 +298,12 @@ function renderCasePage() {
         <label>Case Name <input id="caseName" value="${caseItem.caseName}" /></label>
         <label>Cause Number <input id="causeNumber" value="${caseItem.causeNumber}" /></label>
       </div>
+      <div class="link-form">
+        <button id="openCaseLinkBtn" type="button">Open Link</button>
+        <label>Case Link URL
+          <input id="caseLinkUrl" type="url" placeholder="https://shared-drive.example.com/case-folder" value="${escapeHtml(caseItem.linkUrl || "")}" />
+        </label>
+      </div>
       <div class="controls"><button id="saveCasePage">Save</button></div>
 
       <div class="section">
@@ -347,6 +353,7 @@ function renderCasePage() {
     caseItem.leadAttorneyId = document.getElementById("caseAttorney").value;
     caseItem.caseName = document.getElementById("caseName").value.trim() || caseItem.caseName;
     caseItem.causeNumber = document.getElementById("causeNumber").value.trim() || caseItem.causeNumber;
+    caseItem.linkUrl = document.getElementById("caseLinkUrl").value.trim();
 
     document.querySelectorAll("[data-event-type]").forEach((input) => {
       const id = input.getAttribute("data-event-type");
@@ -359,6 +366,14 @@ function renderCasePage() {
     });
 
     saveAndRender();
+  };
+
+  document.getElementById("openCaseLinkBtn").onclick = () => {
+    const rawUrl = document.getElementById("caseLinkUrl").value.trim();
+    if (!rawUrl) return alert("Please enter a link URL first.");
+    const normalizedUrl = normalizeUrl(rawUrl);
+    if (!normalizedUrl) return alert("Please enter a valid URL.");
+    window.open(normalizedUrl, "_blank", "noopener");
   };
 
   document.getElementById("addEvent").onclick = () => {
@@ -434,6 +449,18 @@ function escapeHtml(input) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+}
+
+function normalizeUrl(url) {
+  try {
+    return new URL(url).toString();
+  } catch {
+    try {
+      return new URL(`https://${url}`).toString();
+    } catch {
+      return null;
+    }
+  }
 }
 
 function render() {
