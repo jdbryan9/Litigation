@@ -42,8 +42,8 @@ const defaultSeed = () => {
   return {
     users: DEFAULT_USERS,
     cases: [
-      { id: caseA, caseName: "Anderson v. Northwind", causeNumber: "24-2-10001-1", leadAttorneyId: abby.id, linkUrl: "" },
-      { id: caseB, caseName: "Baker v. Contoso", causeNumber: "24-2-10002-8", leadAttorneyId: amy.id, linkUrl: "" },
+      { id: caseA, caseName: "Anderson v. Northwind", causeNumber: "24-2-10001-1", leadAttorneyId: abby.id, linkUrl: "", tabsBillingCaseId: "" },
+      { id: caseB, caseName: "Baker v. Contoso", causeNumber: "24-2-10002-8", leadAttorneyId: amy.id, linkUrl: "", tabsBillingCaseId: "" },
     ],
     events: [
       { id: crypto.randomUUID(), caseId: caseA, eventType: "DISCOVERY_DUE", eventAt: new Date(Date.now() + 86400000 * 20).toISOString() },
@@ -236,7 +236,7 @@ function renderDashboard() {
   document.getElementById("scopeMine").onclick = () => { ui.state.scope = "mine"; render(); };
   document.getElementById("addCase").onclick = () => {
     const userId = ui.state.data.users[0]?.id;
-    const c = { id: crypto.randomUUID(), caseName: "New Case", causeNumber: `CN-${Date.now()}`, leadAttorneyId: userId, linkUrl: "" };
+    const c = { id: crypto.randomUUID(), caseName: "New Case", causeNumber: `CN-${Date.now()}`, leadAttorneyId: userId, linkUrl: "", tabsBillingCaseId: "" };
     ui.state.data.cases.push(c);
     saveAndRender();
   };
@@ -304,6 +304,12 @@ function renderCasePage() {
           <input id="caseLinkUrl" type="url" placeholder="https://shared-drive.example.com/case-folder" value="${escapeHtml(caseItem.linkUrl || "")}" />
         </label>
       </div>
+      <div class="billing-form">
+        <button id="copyTabsBillingCaseIdBtn" type="button">Copy ID</button>
+        <label>TABS Billing Case ID
+          <input id="tabsBillingCaseId" placeholder="100.000001" value="${escapeHtml(caseItem.tabsBillingCaseId || "")}" />
+        </label>
+      </div>
       <div class="controls"><button id="saveCasePage">Save</button></div>
 
       <div class="section">
@@ -354,6 +360,7 @@ function renderCasePage() {
     caseItem.caseName = document.getElementById("caseName").value.trim() || caseItem.caseName;
     caseItem.causeNumber = document.getElementById("causeNumber").value.trim() || caseItem.causeNumber;
     caseItem.linkUrl = document.getElementById("caseLinkUrl").value.trim();
+    caseItem.tabsBillingCaseId = document.getElementById("tabsBillingCaseId").value.trim();
 
     document.querySelectorAll("[data-event-type]").forEach((input) => {
       const id = input.getAttribute("data-event-type");
@@ -374,6 +381,17 @@ function renderCasePage() {
     const normalizedUrl = normalizeUrl(rawUrl);
     if (!normalizedUrl) return alert("Please enter a valid URL.");
     window.open(normalizedUrl, "_blank", "noopener");
+  };
+
+  document.getElementById("copyTabsBillingCaseIdBtn").onclick = async () => {
+    const billingId = document.getElementById("tabsBillingCaseId").value.trim();
+    if (!billingId) return alert("Please enter a TABS Billing Case ID first.");
+    try {
+      await navigator.clipboard.writeText(billingId);
+      alert("TABS Billing Case ID copied to clipboard.");
+    } catch {
+      alert("Unable to copy automatically. Please copy manually.");
+    }
   };
 
   document.getElementById("addEvent").onclick = () => {
