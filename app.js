@@ -455,6 +455,22 @@ function renderCasePage() {
 }
 
 function renderSettingsPage() {
+  const caseIdsByEventType = Object.fromEntries(EVENT_TYPES.map((type) => [type, new Set()]));
+  const caseIdsWithEvents = new Set();
+
+  ui.state.data.events.forEach((event) => {
+    caseIdsWithEvents.add(event.caseId);
+    if (caseIdsByEventType[event.eventType]) {
+      caseIdsByEventType[event.eventType].add(event.caseId);
+    }
+  });
+
+  ui.state.data.cases.forEach((c) => {
+    if (!caseIdsWithEvents.has(c.id)) {
+      caseIdsByEventType.PENDING.add(c.id);
+    }
+  });
+
   ui.app.innerHTML = `
     <section class="container">
       <div class="header">
@@ -466,6 +482,25 @@ function renderSettingsPage() {
           <button id="normalThemeBtn" class="${ui.state.theme === "light" ? "save-btn" : ""}">Normal</button>
           <button id="darkThemeBtn" class="${ui.state.theme === "dark" ? "save-btn" : ""}">Dark Mode</button>
         </div>
+      </div>
+      <div class="section">
+        <h2>Statistics</h2>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Event Type</th>
+              <th>Total Cases</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${EVENT_TYPES.map((type) => `
+              <tr>
+                <td><span class="event-chip" style="background:${EVENT_COLORS[type] || "#eee"}">${formatEventType(type)}</span></td>
+                <td>${caseIdsByEventType[type].size}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
       </div>
       <div class="section">
         <button id="returnDashboardBtn" class="back-btn">Return to Dashboard</button>
