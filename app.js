@@ -241,8 +241,14 @@ function renderDashboard() {
     ui.state.data.cases.push(c);
     saveAndRender();
   };
+  document.getElementById("settingsBtn").onclick = () => {
+    ui.state.routeCaseId = null;
+    ui.state.routePage = "settings";
+    render();
+  };
   document.getElementById("logout").onclick = () => {
     ui.state.userId = null;
+    ui.state.routePage = "dashboard";
     localStorage.removeItem("litigation_user_id");
     render();
   };
@@ -263,6 +269,7 @@ function renderDashboard() {
     row.onclick = (e) => {
       if (e.target.closest("button")) return;
       ui.state.routeCaseId = row.getAttribute("data-case-id");
+      ui.state.routePage = "dashboard";
       render();
     };
   });
