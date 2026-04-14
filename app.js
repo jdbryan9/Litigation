@@ -76,6 +76,7 @@ const ui = {
     userId: localStorage.getItem("litigation_user_id") || null,
     theme: localStorage.getItem("litigation_theme") || "light",
     routeCaseId: null,
+    routePage: "dashboard",
     scope: "all",
     sortBy: "eventDate",
     sortDir: "desc",
@@ -198,7 +199,7 @@ function renderDashboard() {
     <section class="container">
       <div class="header">
         <h1>Cases</h1>
-        <button id="themeBtn" class="pill-btn">Theme</button>
+        <button id="settingsBtn" class="pill-btn">Settings</button>
       </div>
       <div class="controls">
         <button id="scopeAll">All Cases</button>
@@ -245,10 +246,7 @@ function renderDashboard() {
     localStorage.removeItem("litigation_user_id");
     render();
   };
-  document.getElementById("themeBtn").onclick = () => {
-    setTheme(ui.state.theme === "light" ? "dark" : "light");
-    render();
-  };
+  document.getElementById("settingsBtn").onclick = () => { ui.state.routePage = "settings"; render(); };
 
   document.querySelectorAll("[data-sort]").forEach((btn) => {
     btn.onclick = (e) => {
@@ -290,7 +288,7 @@ function renderCasePage() {
         <div class="controls">
           <button id="saveCasePage" class="save-btn">Save</button>
           <button id="backBtn" class="back-btn">Back to Dashboard</button>
-          <button id="themeBtn" class="pill-btn">Theme</button>
+          <button id="settingsBtn" class="pill-btn">Settings</button>
         </div>
       </div>
       <div class="form-grid">
@@ -356,7 +354,7 @@ function renderCasePage() {
   `;
 
   document.getElementById("backBtn").onclick = () => { ui.state.routeCaseId = null; render(); };
-  document.getElementById("themeBtn").onclick = () => { setTheme(ui.state.theme === "light" ? "dark" : "light"); render(); };
+  document.getElementById("settingsBtn").onclick = () => { ui.state.routePage = "settings"; render(); };
   document.getElementById("saveCasePage").onclick = () => {
     caseItem.leadAttorneyId = document.getElementById("caseAttorney").value;
     caseItem.caseName = document.getElementById("caseName").value.trim() || caseItem.caseName;
@@ -452,6 +450,34 @@ function renderCasePage() {
   };
 }
 
+function renderSettingsPage() {
+  ui.app.innerHTML = `
+    <section class="container">
+      <div class="header">
+        <h2>Settings</h2>
+      </div>
+      <div class="section">
+        <h2>Theme</h2>
+        <div class="controls">
+          <button id="normalThemeBtn" class="${ui.state.theme === "light" ? "save-btn" : ""}">Normal</button>
+          <button id="darkThemeBtn" class="${ui.state.theme === "dark" ? "save-btn" : ""}">Dark Mode</button>
+        </div>
+      </div>
+      <div class="section">
+        <button id="returnDashboardBtn" class="back-btn">Return to Dashboard</button>
+      </div>
+    </section>
+  `;
+
+  document.getElementById("normalThemeBtn").onclick = () => { setTheme("light"); render(); };
+  document.getElementById("darkThemeBtn").onclick = () => { setTheme("dark"); render(); };
+  document.getElementById("returnDashboardBtn").onclick = () => {
+    ui.state.routeCaseId = null;
+    ui.state.routePage = "dashboard";
+    render();
+  };
+}
+
 function isUndatedType(type) {
   return ["PENDING", "AWAITING_RULING", "RESOLVED"].includes(type);
 }
@@ -486,6 +512,7 @@ function normalizeUrl(url) {
 function render() {
   setTheme(ui.state.theme);
   if (!currentUser()) return renderLogin();
+  if (ui.state.routePage === "settings") return renderSettingsPage();
   if (ui.state.routeCaseId) return renderCasePage();
   return renderDashboard();
 }
