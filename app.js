@@ -246,7 +246,6 @@ function renderDashboard() {
     localStorage.removeItem("litigation_user_id");
     render();
   };
-  document.getElementById("settingsBtn").onclick = () => { ui.state.routePage = "settings"; render(); };
 
   document.querySelectorAll("[data-sort]").forEach((btn) => {
     btn.onclick = (e) => {
@@ -288,7 +287,6 @@ function renderCasePage() {
         <div class="controls">
           <button id="saveCasePage" class="save-btn">Save</button>
           <button id="backBtn" class="back-btn">Back to Dashboard</button>
-          <button id="settingsBtn" class="pill-btn">Settings</button>
         </div>
       </div>
       <div class="form-grid">
@@ -354,7 +352,6 @@ function renderCasePage() {
   `;
 
   document.getElementById("backBtn").onclick = () => { ui.state.routeCaseId = null; render(); };
-  document.getElementById("settingsBtn").onclick = () => { ui.state.routePage = "settings"; render(); };
   document.getElementById("saveCasePage").onclick = () => {
     caseItem.leadAttorneyId = document.getElementById("caseAttorney").value;
     caseItem.caseName = document.getElementById("caseName").value.trim() || caseItem.caseName;
