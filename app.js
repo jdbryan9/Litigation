@@ -287,7 +287,11 @@ function renderCasePage() {
     <section class="container">
       <div class="header">
         <h2>Case Page</h2>
-        <div class="controls"><button id="backBtn">Back to Dashboard</button><button id="themeBtn" class="pill-btn">Theme</button></div>
+        <div class="controls">
+          <button id="saveCasePage" class="save-btn">Save</button>
+          <button id="backBtn" class="back-btn">Back to Dashboard</button>
+          <button id="themeBtn" class="pill-btn">Theme</button>
+        </div>
       </div>
       <div class="form-grid">
         <label>Attorney
@@ -310,8 +314,6 @@ function renderCasePage() {
           <input id="tabsBillingCaseId" placeholder="100.000001" value="${escapeHtml(caseItem.tabsBillingCaseId || "")}" />
         </label>
       </div>
-      <div class="controls"><button id="saveCasePage">Save</button></div>
-
       <div class="section">
         <h2>Events</h2>
         <table class="table">

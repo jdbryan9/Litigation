@@ -61,6 +61,24 @@ h2 { font-size: 1.3rem; }
 
 button:hover, .pill-btn:hover { background: var(--hover); }
 
+.save-btn {
+  color: #16a34a;
+  border-color: #16a34a;
+}
+
+.save-btn:hover {
+  background: rgba(22, 163, 74, 0.12);
+}
+
+.back-btn {
+  color: #2563eb;
+  border-color: #2563eb;
+}
+
+.back-btn:hover {
+  background: rgba(37, 99, 235, 0.12);
+}
+
 .controls {
   display: flex;
   flex-wrap: wrap;
