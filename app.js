@@ -77,7 +77,7 @@ const ui = {
     theme: localStorage.getItem("litigation_theme") || "light",
     routeCaseId: null,
     routePage: "dashboard",
-    scope: "all",
+    caseFilterAttorneyId: "all",
     sortBy: "eventDate",
     sortDir: "desc",
     caseSearchQuery: "",
@@ -118,7 +118,6 @@ function eventSortWeight(event) {
 }
 
 function sortedRows() {
-  const user = currentUser();
   const { cases, events, users } = ui.state.data;
   let rows = [];
 
@@ -132,8 +131,8 @@ function sortedRows() {
     });
   });
 
-  if (ui.state.scope === "mine" && user) {
-    rows = rows.filter((r) => r.case.leadAttorneyId === user.id);
+  if (ui.state.caseFilterAttorneyId !== "all") {
+    rows = rows.filter((r) => r.case.leadAttorneyId === ui.state.caseFilterAttorneyId);
   }
 
   const searchQuery = ui.state.caseSearchQuery.trim().toLowerCase();
@@ -209,6 +208,7 @@ function renderLogin() {
 function renderDashboard() {
   const user = currentUser();
   const rows = sortedRows();
+  const attorneys = ui.state.data.users.slice().sort((a, b) => a.name.localeCompare(b.name));
 
   ui.app.innerHTML = `
     <section class="container">
@@ -217,8 +217,13 @@ function renderDashboard() {
         <button id="settingsBtn" class="pill-btn">Settings</button>
       </div>
       <div class="controls">
-        <button id="scopeAll">All Cases</button>
-        <button id="scopeMine">My Cases</button>
+        <label>
+          View Cases
+          <select id="caseViewFilter">
+            <option value="all">All Cases</option>
+            ${attorneys.map((attorney) => `<option value="${attorney.id}" ${ui.state.caseFilterAttorneyId === attorney.id ? "selected" : ""}>${attorney.name}</option>`).join("")}
+          </select>
+        </label>
         <button id="addCase">Add Case</button>
         <button id="logout">Logout (${user.name})</button>
       </div>
@@ -257,8 +262,10 @@ function renderDashboard() {
     </section>
   `;
 
-  document.getElementById("scopeAll").onclick = () => { ui.state.scope = "all"; render(); };
-  document.getElementById("scopeMine").onclick = () => { ui.state.scope = "mine"; render(); };
+  document.getElementById("caseViewFilter").onchange = (event) => {
+    ui.state.caseFilterAttorneyId = event.target.value;
+    render();
+  };
   document.getElementById("addCase").onclick = () => {
     const userId = ui.state.data.users[0]?.id;
     const c = { id: crypto.randomUUID(), caseName: "New Case", causeNumber: `CN-${Date.now()}`, leadAttorneyId: userId, linkUrl: "", tabsBillingCaseId: "" };
