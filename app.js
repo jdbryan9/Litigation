@@ -80,6 +80,7 @@ const ui = {
     scope: "all",
     sortBy: "eventDate",
     sortDir: "desc",
+    caseSearchQuery: "",
   },
 };
 
@@ -133,6 +134,20 @@ function sortedRows() {
 
   if (ui.state.scope === "mine" && user) {
     rows = rows.filter((r) => r.case.leadAttorneyId === user.id);
+  }
+
+  const searchQuery = ui.state.caseSearchQuery.trim().toLowerCase();
+  if (searchQuery) {
+    rows = rows.filter((r) => {
+      const caseName = r.case.caseName.toLowerCase();
+      const causeNumber = r.case.causeNumber.toLowerCase();
+      const attorneyName = r.attorney.name.toLowerCase();
+      const eventType = formatEventType(r.event.eventType).toLowerCase();
+      return caseName.includes(searchQuery)
+        || causeNumber.includes(searchQuery)
+        || attorneyName.includes(searchQuery)
+        || eventType.includes(searchQuery);
+    });
   }
 
   const col = ui.state.sortBy;
@@ -207,6 +222,15 @@ function renderDashboard() {
         <button id="addCase">Add Case</button>
         <button id="logout">Logout (${user.name})</button>
       </div>
+      <div class="search-row">
+        <label for="caseSearch" class="search-label">Search Cases</label>
+        <input
+          id="caseSearch"
+          type="search"
+          placeholder="Search by case, cause number, attorney, or event..."
+          value="${escapeHtml(ui.state.caseSearchQuery)}"
+        />
+      </div>
 
       <table class="table">
         <thead>
@@ -250,6 +274,12 @@ function renderDashboard() {
     ui.state.userId = null;
     ui.state.routePage = "dashboard";
     localStorage.removeItem("litigation_user_id");
+    render();
+  };
+
+  const caseSearchInput = document.getElementById("caseSearch");
+  caseSearchInput.oninput = () => {
+    ui.state.caseSearchQuery = caseSearchInput.value;
     render();
   };
 
